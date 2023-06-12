@@ -1,0 +1,121 @@
+@model List<MvcWeb.Models.User>
+
+@{
+    Layout =  "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="container">
+        <h2>User Management</h2>
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                    <div class="btn-group me-2" role="group" aria-label="Block">
+                        <button type="button" class="btn btn-danger" onclick="blockUsers()">Block</button>
+                    </div>
+                    <div class="btn-group me-2" role="group" aria-label="Unblock">
+                        <button type="button" class="btn btn-primary" onclick="unblockUsers()"><i class="bi bi-unlock"></i> Unblock</button>
+                    </div>
+                    <div class="btn-group" role="group" aria-label="Delete">
+                        <button type="button" class="btn btn-danger" onclick="deleteUsers()"><i class="bi bi-trash"></i> Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        <input type="checkbox" id="selectAllCheckbox" />
+                    </th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Last Login Time</th>
+                    <th>Registration Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            <input type="checkbox" class="userCheckbox" value="@user.Id" />
+                        </td>
+                        <td>@user.Id</td>
+                        <td>@user.Name</td>
+                        <td>@user.Email</td>
+                        <td>@user.LastLoginTime</td>
+                        <td>@user.RegistrationTime</td>
+                        <td>@user.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.0.2/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Select All checkbox functionality
+        $(document).ready(function () {
+            $("#selectAllCheckbox").change(function () {
+                $(".userCheckbox").prop('checked', $(this).prop("checked"));
+            });
+
+            $(".userCheckbox").change(function () {
+                if (!$(this).prop("checked")) {
+                    $("#selectAllCheckbox").prop("checked", false);
+                }
+            });
+        });
+
+        // Button actions
+        function blockUsers() {
+            var selectedUsers = getSelectedUserIds();
+            if (selectedUsers.length > 0) {
+                $.post("/UserManagement/BlockUsers", { selectedUsers: selectedUsers }, function () {
+                    location.reload();
+                });
+            }
+        }
+
+        function unblockUsers() {
+            var selectedUsers = getSelectedUserIds();
+            if (selectedUsers.length > 0) {
+                $.post("/UserManagement/UnblockUsers", { selectedUsers: selectedUsers }, function () {
+                    location.reload();
+                });
+            }
+        }
+
+        function deleteUsers() {
+            var selectedUsers = getSelectedUserIds();
+            if (selectedUsers.length > 0) {
+                $.post("/UserManagement/DeleteUsers", { selectedUsers: selectedUsers }, function () {
+                    location.reload();
+                });
+            }
+        }
+
+        function getSelectedUserIds() {
+            var selectedUsers = [];
+            $(".userCheckbox:checked").each(function () {
+                selectedUsers.push($(this).val());
+            });
+            return selectedUsers;
+        }
+    </script>
+</body>
+</html>
